@@ -57,7 +57,7 @@ class AuthenticationControllerTest {
         String requestString = this.objectMapper.writeValueAsString(loginRequestDTO);
         final String token = "";
         final String type = "Bearer";
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(token, type);
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(token, type, "");
         String expectedJson = this.objectMapper.writeValueAsString(loginResponseDTO);
         Mockito.when(this.restService.post(anyString(), any(BodyInserters.FormInserter.class), eq(LoginResponseDTO.class))).thenReturn(loginResponseDTO);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
