@@ -1,5 +1,6 @@
 package com.rumahorbo.login.service;
 
+import com.rumahorbo.login.annotation.Log;
 import com.rumahorbo.login.constant.Constant;
 import com.rumahorbo.login.model.LoginRequestDTO;
 import com.rumahorbo.login.model.LoginResponseDTO;
@@ -31,6 +32,7 @@ public class AuthenticationService {
     @Value("${KEYCLOAK_URL_LOGOUT}")
     private String logoutUrl;
 
+    @Log
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         BodyInserters.FormInserter<String> loginKeycloakRequest = this.generateKeycloakRequestToken(loginRequestDTO);
         return this.restService.post(accessTokenUrl, loginKeycloakRequest, LoginResponseDTO.class);
