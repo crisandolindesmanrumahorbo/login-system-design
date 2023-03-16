@@ -3,6 +3,7 @@ package com.rumahorbo.login.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rumahorbo.login.model.LoginRequestDTO;
 import com.rumahorbo.login.model.LoginResponseDTO;
+import com.rumahorbo.login.model.LogoutRequestDTO;
 import com.rumahorbo.login.service.RestService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -68,6 +71,58 @@ class AuthenticationControllerTest {
         this.client.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    @WithMockUser
+    void logout_shouldReturnHttpStatusOK_whenUserAlreadyLogin() throws Exception {
+        final String refresh_token = "";
+        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO(refresh_token);
+        String requestString = this.objectMapper.writeValueAsString(logoutRequestDTO);
+        Mockito.when(this.restService.logout(anyString(), any(BodyInserters.FormInserter.class), anyString(), anyString())).thenReturn(HttpStatus.OK);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/authentication/logout")
+                .content(requestString)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        this.client.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void logout_shouldReturnHttpStatusUnAuthorized_whenTokenInvalid() throws Exception {
+        final String refresh_token = "";
+        LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO(refresh_token);
+        String requestString = this.objectMapper.writeValueAsString(logoutRequestDTO);
+        Mockito.when(this.restService.logout(anyString(), any(BodyInserters.FormInserter.class), anyString(), anyString())).thenReturn(HttpStatus.OK);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/authentication/logout")
+                .content(requestString)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        this.client.perform(request)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void token_shouldReturnHttpStatusOK_whenTokenValid() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get("/authentication/token")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        this.client.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void token_shouldReturnHttpStatusUnAuthorized_whenTokenInValid() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get("/authentication/token")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        this.client.perform(request)
+                .andExpect(status().isUnauthorized());
     }
 
 }
