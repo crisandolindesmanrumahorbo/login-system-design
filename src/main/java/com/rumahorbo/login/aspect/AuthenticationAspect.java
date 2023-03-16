@@ -20,21 +20,21 @@ public class AuthenticationAspect {
 
     @Before(value = "logPointcut(loginRequestDTO)", argNames = "loginRequestDTO")
     public void logBeforeAdvice(LoginRequestDTO loginRequestDTO) {
-        logger.info("User " + loginRequestDTO.username() + " trying to login");
+        logger.info("User {} trying to login", loginRequestDTO.username());
     }
 
     @AfterReturning(value = "logPointcut(loginRequestDTO)", returning = "loginResponseDTO", argNames = "loginRequestDTO,loginResponseDTO")
     public void logAfterAdvice(LoginRequestDTO loginRequestDTO, LoginResponseDTO loginResponseDTO) {
         if (loginResponseDTO == null) {
-            logger.info("User " + loginRequestDTO.username() + " failed to login");
+            logger.info("User {} failed to login", loginRequestDTO.username());
         } else {
-            logger.info("User " + loginRequestDTO.username() + " succeed to login");
+            logger.info("User {} succeed to login", loginRequestDTO.username());
         }
     }
 
     @AfterThrowing(value = "logPointcut(loginRequestDTO)", argNames = "loginRequestDTO")
     public void logThrowAdvice(LoginRequestDTO loginRequestDTO) {
-        logger.info("User " + loginRequestDTO.username() + " failed to login");
+        logger.info("User {} failed to login", loginRequestDTO.username());
     }
 
     @Around(value = "logPointcut(loginRequestDTO)", argNames = "proceedingJoinPoint,loginRequestDTO")
@@ -43,7 +43,7 @@ public class AuthenticationAspect {
         Object value = proceedingJoinPoint.proceed();
         long stopTime = System.currentTimeMillis();
         long time = stopTime - startTime;
-        logger.info("Time to executed " + proceedingJoinPoint.getSignature().getName() + " is " + time + " milliseconds");
+        logger.info("Time to executed {} is {} milliseconds", proceedingJoinPoint.getSignature().getName(), time);
         return value;
     }
 
