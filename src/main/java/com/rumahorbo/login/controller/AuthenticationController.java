@@ -1,5 +1,8 @@
 package com.rumahorbo.login.controller;
 
+import com.rumahorbo.login.annotation.LoginLogger;
+import com.rumahorbo.login.annotation.LogoutLogger;
+import com.rumahorbo.login.annotation.VerifyLogger;
 import com.rumahorbo.login.model.LoginRequestDTO;
 import com.rumahorbo.login.model.LoginResponseDTO;
 import com.rumahorbo.login.model.LogoutRequestDTO;
@@ -17,6 +20,7 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
+    @LoginLogger
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         LoginResponseDTO login = this.authenticationService.login(loginRequestDTO);
         return new ResponseEntity<>(login, login == null ? HttpStatus.UNAUTHORIZED : HttpStatus.OK);

@@ -6,26 +6,35 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 @Component
 @Aspect
-public class AuthenticationAspect {
+public class LoginLoggerAspect {
 
-    private final Logger logger = LoggerFactory.getLogger(AuthenticationAspect.class);
+    private final Logger logger = LoggerFactory.getLogger(LoginLoggerAspect.class);
 
-    @Pointcut(value = "@annotation(com.rumahorbo.login.annotation.Log) && args(loginRequestDTO,..)")
+    @Pointcut(value = "@annotation(com.rumahorbo.login.annotation.LoginLogger) && args(loginRequestDTO,..)")
     public void logPointcut(LoginRequestDTO loginRequestDTO) {
     }
 
     @Before(value = "logPointcut(loginRequestDTO)", argNames = "loginRequestDTO")
     public void logBeforeAdvice(LoginRequestDTO loginRequestDTO) {
-        logger.info("User {} trying to login", loginRequestDTO.username());
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String token = Objects.isNull(request.getHeader("Authorization")) ?  "" : request.getHeader("Authorization").split(" ")[1];
+        logger.info("User {} trying to login, token {}", loginRequestDTO.username(), token);
     }
 
-    @AfterReturning(value = "logPointcut(loginRequestDTO)", returning = "loginResponseDTO", argNames = "loginRequestDTO,loginResponseDTO")
-    public void logAfterAdvice(LoginRequestDTO loginRequestDTO, LoginResponseDTO loginResponseDTO) {
-        if (loginResponseDTO == null) {
+    @AfterReturning(value = "logPointcut(loginRequestDTO)", returning = "loginResponse", argNames = "loginRequestDTO,loginResponse")
+    public void logAfterAdvice(LoginRequestDTO loginRequestDTO, ResponseEntity<LoginResponseDTO> loginResponse) {
+        if (loginResponse.getStatusCode() != HttpStatus.OK) {
             logger.info("User {} failed to login", loginRequestDTO.username());
         } else {
             logger.info("User {} succeed to login", loginRequestDTO.username());
