@@ -28,22 +28,24 @@ public class LoginLoggerAspect {
     @Before(value = "logPointcut(loginRequestDTO)", argNames = "loginRequestDTO")
     public void logBeforeAdvice(LoginRequestDTO loginRequestDTO) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        String token = Objects.isNull(request.getHeader("Authorization")) ?  "" : request.getHeader("Authorization").split(" ")[1];
-        logger.info("User {} trying to login, token {}", loginRequestDTO.username(), token);
+        String host = request.getHeader("Host");
+        String agent = request.getHeader("User-Agent");
+
+        logger.info("User '{}' trying to login with agent '{}' and host '{}'", loginRequestDTO.username(), agent, host);
     }
 
     @AfterReturning(value = "logPointcut(loginRequestDTO)", returning = "loginResponse", argNames = "loginRequestDTO,loginResponse")
     public void logAfterAdvice(LoginRequestDTO loginRequestDTO, ResponseEntity<LoginResponseDTO> loginResponse) {
         if (loginResponse.getStatusCode() != HttpStatus.OK) {
-            logger.info("User {} failed to login", loginRequestDTO.username());
+            logger.info("User '{}' failed to login", loginRequestDTO.username());
         } else {
-            logger.info("User {} succeed to login", loginRequestDTO.username());
+            logger.info("User '{}' succeed to login", loginRequestDTO.username());
         }
     }
 
     @AfterThrowing(value = "logPointcut(loginRequestDTO)", argNames = "loginRequestDTO")
     public void logThrowAdvice(LoginRequestDTO loginRequestDTO) {
-        logger.info("User {} failed to login", loginRequestDTO.username());
+        logger.info("User '{}' failed to login", loginRequestDTO.username());
     }
 
     @Around(value = "logPointcut(loginRequestDTO)", argNames = "proceedingJoinPoint,loginRequestDTO")
@@ -52,7 +54,7 @@ public class LoginLoggerAspect {
         Object value = proceedingJoinPoint.proceed();
         long stopTime = System.currentTimeMillis();
         long time = stopTime - startTime;
-        logger.info("Time to executed {} is {} milliseconds", proceedingJoinPoint.getSignature().getName(), time);
+        logger.info("Time to executed '{}' is '{}' milliseconds", proceedingJoinPoint.getSignature().getName(), time);
         return value;
     }
 
