@@ -1,8 +1,8 @@
 package com.rumahorbo.login.aspect;
 
+import com.rumahorbo.login.util.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
 import java.util.Objects;
 
 @Component
@@ -31,7 +30,7 @@ public class VerifyLoggerAspect {
     public void logBeforeAdvice() {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         String token = Objects.isNull(request.getHeader("Authorization")) ? "" : request.getHeader("Authorization").split(" ")[1];
-        username = this.getNameByDecodeToken(token);
+        username = StringUtils.getNameByDecodeToken(token);
         url = request.getHeader("X-Original-URI");
         String agent = request.getHeader("User-Agent");
         String host = Objects.isNull(request.getHeader("Host")) ? "" : request.getHeader("Host");
@@ -61,14 +60,6 @@ public class VerifyLoggerAspect {
         long time = stopTime - startTime;
         logger.info("Time to executed '{}' is '{}' milliseconds", proceedingJoinPoint.getSignature().getName(), time);
         return value;
-    }
-
-    private String getNameByDecodeToken(String token) {
-        String[] chunks = token.split("\\.");
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        String payload = new String(decoder.decode(chunks[1]));
-        JSONObject object = new JSONObject(payload);
-        return object.getString("preferred_username");
     }
 
 }
