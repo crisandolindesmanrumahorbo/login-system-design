@@ -27,11 +27,13 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
+    @LogoutLogger
     public ResponseEntity<?> logout(@RequestBody LogoutRequestDTO logoutRequestDTO) {
         return new ResponseEntity<>(this.authenticationService.logout(logoutRequestDTO));
     }
 
     @GetMapping("/token")
+    @VerifyLogger
     public ResponseEntity<?> verifyToken() {
         return new ResponseEntity<>(HttpStatus.OK);
     }
