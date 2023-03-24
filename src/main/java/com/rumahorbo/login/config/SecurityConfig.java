@@ -48,7 +48,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/ping/user").hasAnyRole("customer")
                 .antMatchers("/ping/admin").hasAnyRole("admin")
-                .antMatchers("/verify").hasAnyRole("customer")
+                .antMatchers("/authentication/verify").hasAnyRole("customer")
                 .antMatchers("/authentication/login").permitAll()
                 .anyRequest().authenticated();
     }
